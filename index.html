@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Dieta Glide App</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome per Icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glide-shadow {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        .active-tab {
+            color: #ea580c;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex justify-center min-h-screen">
+
+    <!-- CONTAINER EMULATORE SMARTPHONE -->
+    <div class="w-full max-w-md bg-white flex flex-col relative min-h-screen shadow-2xl overflow-hidden border-x border-slate-100 pb-24">
+        
+        <!-- HEADER APPLICAZIONE (Visibile solo in Home e Alimenti) -->
+        <header id="main-header" class="bg-white border-b border-slate-100 sticky top-0 z-50 pt-4 px-4 pb-3">
+            <div class="text-center mb-3">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">Seleziona Profilo</span>
+                <div class="inline-flex p-1 bg-slate-100 rounded-xl w-full">
+                    <button id="btn-sofia" onclick="setUser('sofia')" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 bg-white text-orange-600 shadow-sm">
+                        Sofia 👩🏻
+                    </button>
+                    <button id="btn-paolo" onclick="setUser('paolo')" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900">
+                        Paolo 👨🏻
+                    </button>
+                </div>
+            </div>
+
+            <!-- SELETTORE GIORNO (Allenamento / Riposo) -->
+            <div class="grid grid-cols-2 gap-2 mt-2">
+                <button id="btn-allenamento" onclick="setDayType('allenamento')" class="py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all text-center border-orange-500 bg-orange-50 text-orange-700 font-semibold">
+                    <i class="fa-solid fa-dumbbell mr-1.5 text-xs"></i> Allenamento
+                </button>
+                <button id="btn-riposo" onclick="setDayType('riposo')" class="py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all text-center border-slate-200 text-slate-600 hover:bg-slate-50">
+                    <i class="fa-solid fa-bed mr-1.5 text-xs"></i> Riposo
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENUTO PRINCIPALE SCROLLABILE -->
+        <main class="flex-1 overflow-y-auto px-4 py-3 hide-scrollbar">
+            
+            <!-- SCHEDA 1: DIETA INDIVIDUALE (HOME) -->
+            <div id="tab-home" class="space-y-4">
+                <!-- I pasti verranno iniettati dinamicamente via JS -->
+            </div>
+
+            <!-- SCHEDA 2: ALIMENTI SNELLI -->
+            <div id="tab-alimenti" class="space-y-4 hidden">
+                <div class="bg-orange-50 rounded-2xl p-4 border border-orange-100 mb-2">
+                    <h3 class="text-sm font-bold text-orange-800 uppercase tracking-wide mb-1">Guida Sostituzioni</h3>
+                    <p class="text-xs text-orange-700 leading-relaxed">Puoi variare le fonti all'interno dello stesso macro-gruppo rispettando le grammature indicate nel tuo piano.</p>
+                </div>
+                <div id="lista-alimenti-correnti" class="space-y-3">
+                    <!-- Iniezione dinamica delle liste alimenti -->
+                </div>
+            </div>
+
+            <!-- SCHEDA 3: INSIEME (ALLENAMENTO COMUNE) -->
+            <div id="tab-insieme" class="space-y-4 hidden">
+                <div class="bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl p-5 text-white shadow-md mb-2">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="bg-white/20 p-2 rounded-lg text-lg">👩‍❤️‍👨</div>
+                        <h2 class="text-lg font-bold">Preparazione Condivisa</h2>
+                    </div>
+                    <p class="text-xs text-white/90 leading-relaxed">Entrambi vi allenate oggi! Ecco i pesi unificati da cucinare insieme per ottimizzare i tempi.</p>
+                </div>
+
+                <!-- Selettore Pranzo/Cena per Insieme -->
+                <div class="flex bg-slate-100 p-1 rounded-xl mb-4">
+                    <button onclick="setCoppiaMeal('pranzo')" id="btn-coppia-pranzo" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-slate-800 shadow-sm">PRANZO INSIEME</button>
+                    <button onclick="setCoppiaMeal('cena')" id="btn-coppia-cena" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600">CENA INSIEME</button>
+                </div>
+
+                <div id="lista-pasti-insieme" class="space-y-3">
+                    <!-- Iniezione dinamica cibi combinati -->
+                </div>
+            </div>
+
+            <!-- SCHEDA 4: RIPOSO INSIEME (SOFIA RIPOSO, PAOLO ALLENAMENTO) -->
+            <div id="tab-riposo-insieme" class="space-y-4 hidden">
+                <div class="bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl p-5 text-white shadow-md mb-2">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="bg-white/20 p-2 rounded-lg text-lg">🛋️</div>
+                        <h2 class="text-lg font-bold">Riposo Insieme</h2>
+                    </div>
+                    <p class="text-xs text-white/90 leading-relaxed">Sofia è a riposo, Paolo si allena. I carboidrati sono asimmetrici ma potete cucinare le stesse fonti insieme!</p>
+                </div>
+
+                <!-- Selettore Pranzo/Cena per Riposo Insieme -->
+                <div class="flex bg-slate-100 p-1 rounded-xl mb-4">
+                    <button onclick="setRiposoCoppiaMeal('pranzo')" id="btn-riposo-coppia-pranzo" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-slate-800 shadow-sm">PRANZO MIX</button>
+                    <button onclick="setRiposoCoppiaMeal('cena')" id="btn-riposo-coppia-cena" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600">CENA MIX</button>
+                </div>
+
+                <div id="lista-pasti-riposo-insieme" class="space-y-3">
+                    <!-- Iniezione dinamica cibi combinati asimmetrici -->
+                </div>
+            </div>
+
+        </main>
+
+        <!-- BARRA DI NAVIGAZIONE INFERIORE (GLIDE STYLE) -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-2 py-2 flex justify-around items-center z-50 shadow-lg">
+            <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 py-1 px-2 text-orange-600 transition-all duration-150">
+                <i class="fa-solid fa-utensils text-lg"></i>
+                <span class="text-[10px] font-medium tracking-tight">Dieta</span>
+            </button>
+            
+            <button onclick="switchTab('alimenti')" id="nav-alimenti" class="flex flex-col items-center gap-1 py-1 px-2 text-slate-400 transition-all duration-150">
+                <i class="fa-solid fa-list-ul text-lg"></i>
+                <span class="text-[10px] font-medium tracking-tight">Alimenti</span>
+            </button>
+
+            <button onclick="switchTab('insieme')" id="nav-insieme" class="flex flex-col items-center gap-1 py-1 px-2 text-slate-400 transition-all duration-150">
+                <i class="fa-solid fa-heart text-lg"></i>
+                <span class="text-[10px] font-medium tracking-tight">Insieme</span>
+            </button>
+
+            <button onclick="switchTab('riposo-insieme')" id="nav-riposo-insieme" class="flex flex-col items-center gap-1 py-1 px-2 text-slate-400 transition-all duration-150">
+                <i class="fa-solid fa-couch text-lg"></i>
+                <span class="text-[10px] font-medium tracking-tight">Riposo Insieme</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- LOGICA SCRIPT E DATABASE NUTRIZIONALE -->
+    <script>
+        // DATABASE COMPLETO DIETA
+        const dietData = {
+            sofia: {
+                allenamento: {
+                    colazione: [
+                        { cibo: "Albumi d'uovo", quantita: "150g" },
+                        { cibo: "Farina d'avena aromatizzata", quantita: "50g" },
+                        { cibo: "Burro d'arachidi 100%", quantita: "15g" }
+                    ],
+                    spuntino1: [
+                        { cibo: "Pane di segale o integrale", quantita: "50g" },
+                        { cibo: "Fesa di tacchino o bresaola", quantita: "50g" },
+                        { cibo: "Noci o Mandorle", quantita: "10g" }
+                    ],
+                    pranzo: [
+                        { cibo: "Riso Basmati / Pasta Integrale", quantita: "80g" },
+                        { cibo: "Petto di Pollo / Tacchino", quantita: "120g" },
+                        { cibo: "Olio Extravergine d'Oliva", quantita: "1 cucchiaio (10g)" },
+                        { cibo: "Verdura a foglia verde", quantita: "Libera" }
+                    ],
+                    spuntino2: [
+                        { cibo: "Yogurt Greco 0%", quantita: "150g" },
+                        { cibo: "Mela o Frutta di stagione", quantita: "150g" },
+                        { cibo: "Cioccolato Fondente >85%", quantita: "10g" }
+                    ],
+                    cena: [
+                        { cibo: "Patate dolci o normali", quantita: "200g" },
+                        { cibo: "Filetto di Merluzzo / Salmone", quantita: "150g" },
+                        { cibo: "Olio Extravergine d'Oliva", quantita: "1 cucchiaio (10g)" },
+                        { cibo: "Verdure al vapore", quantita: "A scelta" }
+                    ]
+                },
+                riposo: {
+                    colazione: [
+                        { cibo: "Albumi d'uovo", quantita: "150g" },
+                        { cibo: "Farina d'avena aromatizzata", quantita: "30g" },
+                        { cibo: "Burro d'arachidi 100%", quantita: "15g" }
+                    ],
+                    spuntino1: [
+                        { cibo: "Yogurt Greco 0%", quantita: "150g" },
+                        { cibo: "Noci o Mandorle", quantita: "15g" }
+                    ],
+                    pranzo: [
+                        { cibo: "Riso Basmati / Cereali", quantita: "50g" },
+                        { cibo: "Petto di Pollo / Tacchino", quantita: "130g" },
+                        { cibo: "Olio Extravergine d'Oliva", quantita: "1.5 cucchiai (15g)" },
+                        { cibo: "Verdura mista", quantita: "Abbondante" }
+                    ],
+                    spuntino2: [
+                        { cibo: "Fesa di tacchino / Bresaola", quantita: "60g" },
+                        { cibo: "Grana Padano o Parmigiano", quantita: "15g" }
+                    ],
+                    cena: [
+                        { cibo: "Pane di segale", quantita: "40g" },
+                        { cibo: "Filetto di Orata o Branzino", quantita: "160g" },
+                        { cibo: "Olio Extravergine d'Oliva", quantita: "1.5 cucchiai (15g)" },
+                        { cibo: "Verdure grigliate", quantita: "A scelta" }
+                    ]
+                },
+                alimenti: {
+                    carboidrati: ["Riso Basmati/Venere", "Pasta Integrale/Farro", "Patate", "Pane di Segale", "Farina d'Avena"],
+                    proteine: ["Petto di Pollo", "Fesa di Tacchino", "Albumi d'uovo", "Merluzzo/Nasello", "Yogurt Greco 0%"],
+                    grassi: ["Olio EVO", "Burro d'Arachidi 100%", "Mandorle/Noci", "Avocado"]
+                }
+            },
+            paolo: {
+                allenamento: {
+                    colazione: [
+                        { cibo: "Albumi d'uovo", quantita: "200g" },
+                        { cibo: "Farina d'avena aromatizzata", quantita: "80g" },
+                        { cibo: "Burro d'arachidi 100%", quantita: "20g" }
+                    ],
+                    spuntino1: [
+                        { cibo: "Pane integrale", quantita: "80g" },
+                        { cibo: "Bresaola o Fesa", quantita: "70g" },
+                        { cibo: "Mandorle", quantita: "15g" }
+                    ],
+                    pranzo: [
+                        { cibo: "Riso Basmati / Pasta Integrale", quantita: "120g" },
+                        { cibo: "Petto di Pollo / Tacchino", quantita: "160g" },
+                        { cibo: "Olio Extravergine d'Oliva", quantita: "1.5 cucchiai (15g)" },
+                        { cibo: "Verdura mista", quantita: "A piacere" }
+                    ],
+                    spuntino2: [
+                        { cibo: "Yogurt Greco 0%", quantita: "200g" },
+                        { cibo: "Banana grande", quantita: "1 (circa 120g)" },
+                        { cibo: "Noci", quantita: "15g" }
+                    ],
+                    cena: [
+                        { cibo: "Patate dolci o normali", quantita: "350g" },
+                        { cibo: "Filetto di Salmone / Tonno", quantita: "180g" },
+                        { cibo: "Olio Extravergine d'Oliva", quantita: "1 cucchiaio (10g)" },
+                        { cibo: "Verdure assortite", quantita: "A scelta" }
+                    ]
+                },
+                riposo: {
+                    colazione: [
+                        { cibo: "Albumi d'uovo", quantita: "200g" },
+                        { cibo: "Farina d'avena aromatizzata", quantita: "50g" },
+                        { cibo: "Burro d'arachidi 100%", quantita: "20g" }
+                    ],
+                    spuntino1: [
+                        { cibo: "Yogurt Greco 0%", quantita: "200g" },
+                        { cibo: "Noci o Mandorle", quantita: "20g" }
+                    ],
+                    pranzo: [
+                        { cibo: "Riso Basmati / Cereali", quantita: "70g" },
+                        { cibo: "Petto di Pollo / Tacchino", quantita: "180g" },
+                        { cibo: "Olio Extravergine d'Oliva", quantita: "2 cucchiai (20g)" },
+                        { cibo: "Verdura mista", quantita: "Abbondante" }
+                    ],
+                    spuntino2: [
+                        { cibo: "Pane di segale", quantita: "40g" },
+                        { cibo: "Fesa di tacchino / Tonno nat.", quantita: "80g" }
+                    ],
+                    cena: [
+                        { cibo: "Pane integrale", quantita: "60g" },
+                        { cibo: "Filetto di Pesce magro o Pollo", quantita: "200g" },
+                        { cibo: "Olio Extravergine d'Oliva", quantita: "2 cucchiai (20g)" },
+                        { cibo: "Verdure al vapore", quantita: "A scelta" }
+                    ]
+                },
+                alimenti: {
+                    carboidrati: ["Riso Basmati/Integrale", "Pasta Farro/Grano", "Patate", "Pane Integrale", "Farina d'Avena"],
+                    proteine: ["Petto di Pollo", "Fesa di Tacchino", "Albumi", "Salmone fres./Filetto", "Yogurt Greco 0%"],
+                    grassi: ["Olio EVO", "Burro d'Arachidi", "Noci/Mandorle", "Cioccolato Fondente"]
+                }
+            }
+        };
+
+        // DATABASE ABBINAMENTI PER CUCINARE INSIEME
+        const ingredientiCoppia = {
+            pranzo: [
+                { nome: "Riso Basmati / Pasta Integrale", sofiaAll: 80, paoloAll: 120, sofiaRip: 50, paoloRip: 70, unita: "g" },
+                { nome: "Petto di Pollo / Tacchino", sofiaAll: 120, paoloAll: 160, sofiaRip: 130, paoloRip: 180, unita: "g" },
+                { nome: "Olio Extravergine d'Oliva", sofiaAll: 10, paoloAll: 15, sofiaRip: 15, paoloRip: 20, unita: "g" }
+            ],
+            cena: [
+                { nome: "Patate (Pesate a crudo)", sofiaAll: 200, paoloAll: 350, sofiaRip: 0, paoloRip: 0, unita: "g", nota: "Nel riposo Sofia usa Pane, Paolo usa Pane Integrale" },
+                { nome: "Pane (Alternativa carboidrati)", sofiaAll: 0, paoloAll: 0, sofiaRip: 40, paoloRip: 60, unita: "g" },
+                { nome: "Filetto di Pesce (Merluzzo/Orata/Salmone)", sofiaAll: 150, paoloAll: 180, sofiaRip: 160, paoloRip: 200, unita: "g" },
+                { nome: "Olio Extravergine d'Oliva", sofiaAll: 10, paoloAll: 10, sofiaRip: 15, paoloRip: 20, unita: "g" }
+            ]
+        };
+
+        // STATO DELL'APPLICAZIONE
+        let currentUser = 'sofia';
+        let currentDayType = 'allenamento';
+        let currentCoppiaMeal = 'pranzo';
+        let currentRiposoCoppiaMeal = 'pranzo';
+
+        // GESTIONE CAMBIO SCHEDA (TAB NAV)
+        function switchTab(tabId) {
+            // Nascondi tutte le schede
+            document.getElementById('tab-home').classList.add('hidden');
+            document.getElementById('tab-alimenti').classList.add('hidden');
+            document.getElementById('tab-insieme').classList.add('hidden');
+            document.getElementById('tab-riposo-insieme').classList.add('hidden');
+
+            // Rimuovi colore attivo dai bottoni nav
+            document.getElementById('nav-home').className = "flex flex-col items-center gap-1 py-1 px-2 text-slate-400 transition-all duration-150";
+            document.getElementById('nav-alimenti').className = "flex flex-col items-center gap-1 py-1 px-2 text-slate-400 transition-all duration-150";
+            document.getElementById('nav-insieme').className = "flex flex-col items-center gap-1 py-1 px-2 text-slate-400 transition-all duration-150";
+            document.getElementById('nav-riposo-insieme').className = "flex flex-col items-center gap-1 py-1 px-2 text-slate-400 transition-all duration-150";
+
+            // Mostra la scheda corretta e attiva l'icona
+            if(tabId === 'home') {
+                document.getElementById('tab-home').classList.remove('hidden');
+                document.getElementById('nav-home').className = "flex flex-col items-center gap-1 py-1 px-2 text-orange-600 transition-all duration-150";
+                document.getElementById('main-header').classList.remove('hidden');
+            } else if(tabId === 'alimenti') {
+                document.getElementById('tab-alimenti').classList.remove('hidden');
+                document.getElementById('nav-alimenti').className = "flex flex-col items-center gap-1 py-1 px-2 text-orange-600 transition-all duration-150";
+                document.getElementById('main-header').classList.remove('hidden');
+                renderAlimenti();
+            } else if(tabId === 'insieme') {
+                document.getElementById('tab-insieme').classList.remove('hidden');
+                document.getElementById('nav-insieme').className = "flex flex-col items-center gap-1 py-1 px-2 text-orange-600 transition-all duration-150";
+                document.getElementById('main-header').classList.add('hidden'); // Nasconde tutta la parte alta
+                renderInsieme();
+            } else if(tabId === 'riposo-insieme') {
+                document.getElementById('tab-riposo-insieme').classList.remove('hidden');
+                document.getElementById('nav-riposo-insieme').className = "flex flex-col items-center gap-1 py-1 px-2 text-blue-600 transition-all duration-150";
+                document.getElementById('main-header').classList.add('hidden'); // Nasconde tutta la parte alta
+                renderRiposoInsieme();
+            }
+        }
+
+        // CAMBIO UTENTE DIETA INDIVIDUALE
+        function setUser(user) {
+            currentUser = user;
+            const btnSofia = document.getElementById('btn-sofia');
+            const btnPaolo = document.getElementById('btn-paolo');
+
+            if(user === 'sofia') {
+                btnSofia.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 bg-white text-orange-600 shadow-sm";
+                btnPaolo.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900";
+            } else {
+                btnPaolo.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 bg-white text-orange-600 shadow-sm";
+                btnSofia.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 text-slate-600 hover:text-slate-900";
+            }
+            applyUserConfiguration();
+        }
+
+        // CAMBIO TIPO DI GIORNO DIETA INDIVIDUALE
+        function setDayType(type) {
+            currentDayType = type;
+            const btnAll = document.getElementById('btn-allenamento');
+            const btnRip = document.getElementById('btn-riposo');
+
+            if(type === 'allenamento') {
+                btnAll.className = "py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all text-center border-orange-500 bg-orange-50 text-orange-700 font-semibold";
+                btnRip.className = "py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all text-center border-slate-200 text-slate-600 hover:bg-slate-50";
+            } else {
+                btnRip.className = "py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all text-center border-orange-500 bg-orange-50 text-orange-700 font-semibold";
+                btnAll.className = "py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all text-center border-slate-200 text-slate-600 hover:bg-slate-50";
+            }
+            applyUserConfiguration();
+        }
+
+        // CAMBIO PASTO NELLA TAB INSIEME
+        function setCoppiaMeal(meal) {
+            currentCoppiaMeal = meal;
+            const btnPranzo = document.getElementById('btn-coppia-pranzo');
+            const btnCena = document.getElementById('btn-coppia-cena');
+
+            if(meal === 'pranzo') {
+                btnPranzo.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-slate-800 shadow-sm";
+                btnCena.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600";
+            } else {
+                btnCena.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-slate-800 shadow-sm";
+                btnPranzo.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600";
+            }
+            renderInsieme();
+        }
+
+        // CAMBIO PASTO NELLA TAB RIPOSO INSIEME
+        function setRiposoCoppiaMeal(meal) {
+            currentRiposoCoppiaMeal = meal;
+            const btnPranzo = document.getElementById('btn-riposo-coppia-pranzo');
+            const btnCena = document.getElementById('btn-riposo-coppia-cena');
+
+            if(meal === 'pranzo') {
+                btnPranzo.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-slate-800 shadow-sm";
+                btnCena.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600";
+            } else {
+                btnCena.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-slate-800 shadow-sm";
+                btnPranzo.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all text-slate-600";
+            }
+            renderRiposoInsieme();
+        }
+
+        // COSTRUZIONE SCHEDA DIETA INDIVIDUALE
+        function applyUserConfiguration() {
+            const container = document.getElementById('tab-home');
+            container.innerHTML = '';
+
+            const pasti = dietData[currentUser][currentDayType];
+            const iconePasti = {
+                colazione: "fa-mug-saucer text-amber-500",
+                spuntino1: "fa-apple-whole text-emerald-500",
+                pranzo: "fa-bowl-rice text-orange-500",
+                spuntino2: "fa-cookie text-purple-500",
+                cena: "fa-fish text-blue-500"
+            };
+
+            for (const [nomePasto, alimenti] of Object.entries(pasti)) {
+                let pastoHTML = `
+                    <div class="bg-white rounded-2xl p-4 border border-slate-100 glide-shadow">
+                        <div class="flex items-center gap-2 mb-3 border-b border-slate-50 pb-2">
+                            <i class="fa-solid ${iconePasti[nomePasto] || 'fa-utensils'} text-base"></i>
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-700">${nomePasto}</h3>
+                        </div>
+                        <ul class="space-y-2">
+                `;
+
+                alimenti.forEach(item => {
+                    pastoHTML += `
+                        <div class="flex justify-between items-center bg-slate-50/70 p-2.5 rounded-xl border border-slate-100">
+                            <span class="text-sm font-medium text-slate-600">${item.cibo}</span>
+                            <span class="text-sm font-bold bg-white px-2.5 py-1 rounded-lg border border-slate-100 text-slate-800 shadow-2xs">${item.quantita}</span>
+                        </div>
+                    `;
+                });
+
+                pastoHTML += `</ul></div>`;
+                container.innerHTML += pastoHTML;
+            }
+        }
+
+        // COSTRUZIONE SCHEDA CATEGORIE ALIMENTI
+        function renderAlimenti() {
+            const container = document.getElementById('lista-alimenti-correnti');
+            container.innerHTML = '';
+
+            const categorie = dietData[currentUser].alimenti;
+
+            for (const [categoria, lista] of Object.entries(categorie)) {
+                let catHTML = `
+                    <div class="bg-white rounded-2xl p-4 border border-slate-100 glide-shadow">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">${categoria}</h4>
+                        <div class="flex flex-wrap gap-2">
+                `;
+
+                lista.forEach(alimento => {
+                    catHTML += `<span class="bg-slate-100 text-slate-700 text-xs font-medium px-3 py-1.5 rounded-xl border border-slate-200/50">${alimento}</span>`;
+                });
+
+                catHTML += `</div></div>`;
+                container.innerHTML += catHTML;
+            }
+        }
+
+        // COSTRUZIONE ELEMENTI COMBINATI PER TAB INSIEME (ALLENAMENTO COMUNE)
+        function renderInsieme() {
+            const container = document.getElementById('lista-pasti-insieme');
+            container.innerHTML = '';
+
+            const ingredienti = ingredientiCoppia[currentCoppiaMeal];
+            let generatoQualcosa = false;
+
+            ingredienti.forEach(ing => {
+                if(ing.sofiaAll === 0 && ing.paoloAll === 0) return;
+
+                generatoQualcosa = true;
+                const totale = ing.sofiaAll + ing.paoloAll;
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl p-4 border border-slate-100 glide-shadow flex flex-col gap-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">${ing.nome}</h4>
+                                ${ing.nota ? `<p class="text-[11px] text-amber-600 font-medium mt-0.5"><i class="fa-solid fa-circle-info mr-1"></i>${ing.nota}</p>` : ''}
+                            </div>
+                            <div class="bg-orange-600 text-white text-xs font-black px-3 py-1.5 rounded-xl text-center shadow-sm whitespace-nowrap">
+                                BILANCIA: ${totale}${ing.unita}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs border-t border-slate-50 pt-2.5 text-slate-500">
+                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100"><span class="font-semibold text-slate-700">Sofia:</span> ${ing.sofiaAll}${ing.unita}</div>
+                            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100"><span class="font-semibold text-slate-700">Paolo:</span> ${ing.paoloAll}${ing.unita}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Contorno e note
+            container.innerHTML += `
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200/60 border-dashed text-center">
+                    <p class="text-xs text-slate-500 font-medium"><i class="fa-solid fa-leaf text-emerald-500 mr-1.5"></i>Verdure e Insalate: Preparazione unica e porzione libera per entrambi!</p>
+                </div>
+            `;
+        }
+
+        // COSTRUZIONE ELEMENTI COMBINATI PER TAB RIPOSO INSIEME (SOFIA RIPOSO, PAOLO ALLENAMENTO)
+        function renderRiposoInsieme() {
+            const container = document.getElementById('lista-pasti-riposo-insieme');
+            container.innerHTML = '';
+
+            const ingredienti = ingredientiCoppia[currentRiposoCoppiaMeal];
+
+            ingredienti.forEach(ing => {
+                if(ing.sofiaRip === 0 && ing.paoloAll === 0) return;
+
+                const totale = ing.sofiaRip + ing.paoloAll;
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl p-4 border border-slate-100 glide-shadow flex flex-col gap-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">${ing.nome}</h4>
+                                ${ing.nota ? `<p class="text-[11px] text-indigo-600 font-medium mt-0.5"><i class="fa-solid fa-circle-info mr-1"></i>Nota combinata</p>` : ''}
+                            </div>
+                            <div class="bg-indigo-600 text-white text-xs font-black px-3 py-1.5 rounded-xl text-center shadow-sm whitespace-nowrap">
+                                BILANCIA: ${totale}${ing.unita}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs border-t border-slate-50 pt-2.5 text-slate-500">
+                            <div class="bg-slate-50 p-2 rounded-xl border border-blue-50/50"><span class="font-semibold text-indigo-600">Sofia (Riposo):</span> ${ing.sofiaRip}${ing.unita}</div>
+                            <div class="bg-slate-50 p-2 rounded-xl border border-orange-50/50"><span class="font-semibold text-orange-600">Paolo (Allenat.):</span> ${ing.paoloAll}${ing.unita}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML += `
+                <div class="bg-blue-50/60 rounded-2xl p-4 border border-blue-200/60 border-dashed text-center">
+                    <p class="text-xs text-blue-700 font-medium"><i class="fa-solid fa-circle-check text-blue-500 mr-1.5"></i>Perfetto per bilanciare i macro della serata di relax di Sofia e il recupero di Paolo!</p>
+                </div>
+            `;
+        }
+
+        // CARICAMENTO INIZIALE
+        window.onload = function() {
+            applyUserConfiguration();
+        };
+    </script>
+</body>
+</html>
