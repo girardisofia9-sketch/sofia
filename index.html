@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Dieta Glide - Sofia & Paolo</title>
+    <meta name="theme-color" content="#ec4899">
+    <link rel="apple-touch-icon" href="icona.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Dieta Glide">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        dietPrimarySofia: '#3d1625', 
+                        dietPrimaryPaolo: '#0f172a', 
+                        dietSofia: '#ec4899',        
+                        dietPaolo: '#2563eb',        
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body, html {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            height: 100dvh;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; 
+            background-color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .glide-shadow {
+            box-shadow: 0 4px 12px rgba(35, 18, 5, 0.02), 0 1px 4px rgba(35, 18, 5, 0.01);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 flex items-center justify-center">
+
+    <div id="app-container" class="w-full h-full md:h-[840px] sm:max-w-md bg-rose-50 md:rounded-[40px] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] md:border-[10px] md:border-slate-800 flex flex-col overflow-hidden relative transition-all duration-500">
+        
+        <!-- HEADER -->
+        <header id="app-header" class="bg-dietPrimarySofia text-white px-5 pb-5 pt-6 shrink-0 md:rounded-b-[28px] shadow-md transition-all duration-500 z-20">
+            <div class="flex flex-col items-center mb-3 pb-2 border-b border-white/10">
+                <div class="bg-black/25 p-0.5 rounded-xl flex w-full border border-white/5">
+                    <button onclick="switchUser('sofia')" id="btn-user-sofia" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-pink-500 text-white shadow-sm">
+                        Sofia 👩🏻
+                    </button>
+                    <button onclick="switchUser('paolo')" id="btn-user-paolo" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-white/50 hover:text-white">
+                        Paolo 👨🏻
+                    </button>
+                </div>
+            </div>
+            <div id="day-selector-container" class="mt-3 bg-black/25 p-1 rounded-xl flex border border-white/5">
+                <button onclick="setGiornoType('allenamento')" id="btn-giorno1" class="flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all duration-200 bg-pink-500 text-white shadow-sm">
+                    <i class="fa-solid fa-dumbbell mr-1 text-[10px]"></i> Allenamento
+                </button>
+                <button onclick="setGiornoType('riposo')" id="btn-giorno2" class="flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all duration-200 text-white/60 hover:text-white">
+                    <i class="fa-solid fa-bed mr-1 text-[10px]"></i> Riposo
+                </button>
+            </div>
+            <div id="single-day-banner" class="mt-4 bg-black/25 py-2.5 px-4 rounded-xl border border-white/5 text-center hidden">
+                <span class="text-xs font-bold text-blue-400 font-outfit uppercase tracking-wider">
+                    <i class="fa-solid fa-bolt mr-1.5"></i> Giornata Attiva (2199 kcal)
+                </span>
+            </div>
+        </header>
+
+        <!-- CONTENUTO -->
+        <main id="app-content-area" style="padding-bottom: calc(5rem + env(safe-area-inset-bottom));" class="flex-grow overflow-y-auto px-4 py-4 no-scrollbar">
+            <div id="tab-home" class="space-y-3">
+                <div class="flex items-center justify-between pl-1 mb-1">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-xs font-bold text-stone-400 uppercase tracking-wider font-outfit">Pasti della Giornata</h3>
+                        <span id="prot-badge" class="text-[9px] font-bold uppercase tracking-wider text-white bg-pink-500/80 px-2 py-0.5 rounded-md shadow-sm transition-all duration-300">Prot. 2.1</span>
+                    </div>
+                    <button onclick="openFrequencies()" id="btn-tracker" class="flex items-center gap-1.5 bg-white border border-stone-200/60 shadow-sm px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-stone-600 hover:bg-stone-50 transition-all glide-shadow">
+                        <i class="fa-solid fa-list-check text-pink-500"></i> Tracker
+                    </button>
+                </div>
+                
+                <div class="space-y-2">
+                    <div onclick="openMealDetail('colazione')" class="bg-white border border-stone-200/50 p-2.5 rounded-xl flex items-center justify-between glide-shadow hover:bg-white/80 transition-all cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div id="icon-colazione" class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center text-sm transition-all duration-300">
+                                <i class="fa-solid fa-mug-saucer"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-[13px] font-bold text-stone-800 font-outfit leading-tight">Colazione</h4>
+                                <p class="text-[11px] text-stone-400 mt-0.5 leading-tight" id="colazione-subtitle">Scegli tra le opzioni del piano</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-stone-300 text-[10px]"></i>
+                    </div>
+
+                    <div onclick="openMealDetail('spuntino-mm')" class="bg-white border border-stone-200/50 p-2.5 rounded-xl flex items-center justify-between glide-shadow hover:bg-white/80 transition-all cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-apple-whole"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-[13px] font-bold text-stone-800 font-outfit leading-tight">Spuntino Mattina</h4>
+                                <p class="text-[11px] text-stone-400 mt-0.5 leading-tight">Frutta o fonti proteiche</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-stone-300 text-[10px]"></i>
+                    </div>
+
+                    <div onclick="openMealDetail('pranzo')" class="bg-white border border-stone-200/50 p-2.5 rounded-xl flex items-center justify-between glide-shadow hover:bg-white/80 transition-all cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div id="icon-pranzo" class="w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center text-sm transition-all duration-300">
+                                <i class="fa-solid fa-bowl-rice"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-[13px] font-bold text-stone-800 font-outfit leading-tight">Pranzo</h4>
+                                <p class="text-[11px] text-stone-400 mt-0.5 leading-tight" id="pranzo-subtitle">Calcola carboidrati e proteine</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-stone-300 text-[10px]"></i>
+                    </div>
+
+                    <div onclick="openMealDetail('spuntino-mp')" class="bg-white border border-stone-200/50 p-2.5 rounded-xl flex items-center justify-between glide-shadow hover:bg-white/80 transition-all cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-[13px] font-bold text-stone-800 font-outfit leading-tight">Spuntino Pomeriggio</h4>
+                                <p class="text-[11px] text-stone-400 mt-0.5 leading-tight">Ideale anche come pre-workout</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-stone-300 text-[10px]"></i>
+                    </div>
+
+                    <div onclick="openMealDetail('cena')" class="bg-white border border-stone-200/50 p-2.5 rounded-xl flex items-center justify-between glide-shadow hover:bg-white/80 transition-all cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div id="icon-cena" class="w-8 h-8 rounded-lg bg-stone-900 text-pink-500 flex items-center justify-center text-sm transition-all duration-300">
+                                <i class="fa-solid fa-moon"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-[13px] font-bold text-stone-800 font-outfit leading-tight">Cena</h4>
+                                <p class="text-[11px] text-stone-400 mt-0.5 leading-tight" id="cena-subtitle">Calcola carboidrati e secondi</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-stone-300 text-[10px]"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-alimenti" class="hidden space-y-4">
+                <div class="sticky top-0 bg-transparent pt-1 pb-2 z-10 space-y-2">
+                    <h3 class="text-xs font-bold text-stone-400 uppercase tracking-wider pl-1 font-outfit">Ricerca Alimenti</h3>
+                    <div class="relative">
+                        <input type="text" id="food-search-input" oninput="filterFoods()" placeholder="Cerca es. 'pane', 'uova', 'riso'..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none text-sm transition-all bg-white shadow-sm">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-stone-400"></i>
+                    </div>
+                </div>
+                <div class="space-y-4" id="foods-container"></div>
+            </div>
+
+            <div id="tab-insieme" class="hidden space-y-4 pt-2">
+                <div class="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-5 rounded-2xl relative overflow-hidden shadow-md">
+                    <h3 class="text-lg font-bold font-outfit flex items-center gap-2">
+                        <span>Preparazione Condivisa</span> <span>👩‍❤️‍👨</span>
+                    </h3>
+                    <p class="text-xs text-white/95 mt-1 leading-relaxed">
+                        Oggi vi allenate entrambi! Ecco i pesi unificati da pesare sulla bilancia per un pasto in comune veloce e calibrato.
+                    </p>
+                </div>
+                <div class="bg-white p-1 rounded-xl flex border border-stone-200 shadow-sm">
+                    <button onclick="setJointMealType('pranzo')" id="btn-joint-pranzo" class="flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all bg-orange-500 text-white shadow-sm">
+                        ☀️ Pranzo Insieme
+                    </button>
+                    <button onclick="setJointMealType('cena')" id="btn-joint-cena" class="flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all text-stone-500 hover:text-stone-800">
+                        🌙 Cena Insieme
+                    </button>
+                </div>
+                <div class="space-y-3" id="joint-foods-container"></div>
+            </div>
+
+            <div id="tab-riposo-insieme" class="hidden space-y-4 pt-2">
+                <div class="bg-gradient-to-r from-teal-600 to-emerald-500 text-white p-5 rounded-2xl relative overflow-hidden shadow-md">
+                    <h3 class="text-lg font-bold font-outfit flex items-center gap-2">
+                        <span>Riposo Insieme</span> <span>🛋️</span>
+                    </h3>
+                    <p class="text-xs text-white/95 mt-1 leading-relaxed">
+                        Sofia è a riposo (carboidrati più bassi) e Paolo si allena. Potete cucinare insieme lo stesso piatto sfruttando i pesi combinati asimmetrici.
+                    </p>
+                </div>
+                <div class="bg-white p-1 rounded-xl flex border border-stone-200 shadow-sm">
+                    <button onclick="setRiposoJointMealType('pranzo')" id="btn-riposo-joint-pranzo" class="flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all bg-teal-600 text-white shadow-sm">
+                        ☀️ Pranzo Mix
+                    </button>
+                    <button onclick="setRiposoJointMealType('cena')" id="btn-riposo-joint-cena" class="flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all text-stone-500 hover:text-stone-800">
+                        🌙 Cena Mix
+                    </button>
+                </div>
+                <div class="space-y-3" id="riposo-joint-foods-container"></div>
+            </div>
+        </main>
+
+        <!-- NAV BAR -->
+        <nav style="padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));" class="absolute bottom-0 left-0 right-0 bg-white border-t border-stone-100 px-2 py-2 flex justify-around items-center z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
+            <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 py-1 px-3 text-pink-500 font-bold transition-all">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span class="text-[10px] tracking-tight">Oggi</span>
+            </button>
+            <button onclick="switchTab('alimenti')" id="nav-alimenti" class="flex flex-col items-center gap-1 py-1 px-3 text-stone-400 font-semibold hover:text-stone-600 transition-all">
+                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                <span class="text-[10px] tracking-tight">Alimenti</span>
+            </button>
+            <button onclick="switchTab('insieme')" id="nav-insieme" class="flex flex-col items-center gap-1 py-1 px-3 text-stone-400 font-semibold hover:text-stone-600 transition-all">
+                <i class="fa-solid fa-heart text-lg"></i>
+                <span class="text-[10px] tracking-tight">Insieme</span>
+            </button>
+            <button onclick="switchTab('riposo-insieme')" id="nav-riposo-insieme" class="flex flex-col items-center gap-1 py-1 px-3 text-stone-400 font-semibold hover:text-stone-600 transition-all">
+                <i class="fa-solid fa-couch text-lg"></i>
+                <span class="text-[10px] tracking-tight">Riposo Insieme</span>
+            </button>
+        </nav>
+
+        <!-- POPUP PASTO -->
+        <div id="meal-detail-popup" class="hidden absolute inset-0 bg-black/40 z-50 flex items-end justify-center transition-all duration-300">
+            <div class="glassmorphism w-full h-[85%] rounded-t-[28px] p-5 overflow-y-auto no-scrollbar shadow-2xl flex flex-col translate-y-full transition-transform duration-300" id="meal-popup-content">
+                <div class="flex justify-between items-center mb-4 border-b border-stone-200/50 pb-3 shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <div id="popup-meal-icon" class="w-9 h-9 rounded-xl flex items-center justify-center text-lg"></div>
+                        <h3 id="popup-meal-title" class="text-base font-bold text-stone-800 font-outfit">Pasto</h3>
+                    </div>
+                    <button onclick="closeMealDetail()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div id="popup-option-selector-wrapper" class="mb-4 hidden shrink-0">
+                    <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1.5 font-outfit">Seleziona un'Opzione</label>
+                    <select id="popup-option-selector" onchange="renderMealOptionDetails()" class="w-full bg-white border border-stone-200 p-3 rounded-xl outline-none text-xs font-semibold text-stone-700 focus:border-pink-500 shadow-sm"></select>
+                </div>
+                <div id="popup-meal-body" class="space-y-4 flex-grow overflow-y-auto no-scrollbar pb-10 text-xs text-stone-600 leading-relaxed font-sans"></div>
+            </div>
+        </div>
+
+        <!-- POPUP TRACKER -->
+        <div id="freq-detail-popup" class="hidden absolute inset-0 bg-black/40 z-50 flex items-end justify-center transition-all duration-300">
+            <div class="glassmorphism w-full h-[85%] rounded-t-[28px] p-5 overflow-hidden shadow-2xl flex flex-col translate-y-full transition-transform duration-300" id="freq-popup-content">
+                <div class="flex justify-between items-center mb-4 border-b border-stone-200/50 pb-3 shrink-0">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-stone-100 text-stone-600 flex items-center justify-center text-lg">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold text-stone-800 font-outfit leading-tight">Tracker Settimanale</h3>
+                            <p class="text-[10px] text-stone-400 font-semibold">Tocca i box quando consumi</p>
+                        </div>
+                    </div>
+                    <button onclick="closeFrequencies()" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 flex items-center justify-center transition-colors shrink-0">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div id="freq-popup-body" class="space-y-2 flex-grow overflow-y-auto no-scrollbar text-xs text-stone-600 font-sans pb-4"></div>
+                <button onclick="resetFrequencies()" class="w-full py-3 rounded-xl border border-stone-200 text-xs font-bold text-stone-400 hover:text-stone-600 hover:bg-stone-50 transition-all mt-2 shrink-0">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Azzera Tracker
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTRAZIONE PWA (manifest.json e sw.js stanno nella stessa cartella) -->
+    <script>
+        if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(console.error);
+            });
+        }
+    </script>
+
+    <!-- LOGICA E DATI -->
+    <script>
+        const sofiaDatabase = {
+            giorno1: {
+                pranzo: {
+                    primi: [
+                        { name: "Pasta, riso, cous cous", qty: "80g" },
+                        { name: "Orzo, farro, avena, mix cereali", qty: "80g" },
+                        { name: "Gnocchi (min 80% patate)", qty: "170g" },
+                        { name: "Pasta, riso ecc. + 120g legumi in scatola", qty: "80g" },
+                        { name: "Pane", qty: "100g" },
+                        { name: "Patate", qty: "320g" }
+                    ],
+                    condimenti: [
+                        { name: "Olio EVO", qty: "10g (1 cucchiaio raso o 2 cucchiaini)" },
+                        { name: "Parmigiano/Grana", qty: "10g (opzionale se non mangi carboidrati)" }
+                    ],
+                    secondi: [
+                        { name: "Petto di pollo, tacchino", qty: "100g" },
+                        { name: "Fusi o sovracoscia pollo", qty: "150g" },
+                        { name: "Macinato scelto bovino", qty: "100g" },
+                        { name: "Lonza di maiale", qty: "100g" },
+                        { name: "Carne manzo o vitello", qty: "100g" },
+                        { name: "Affettato di pollo/tacchino/cotto", qty: "100g" },
+                        { name: "Uova (intere)", qty: "2 uova" },
+                        { name: "Uova + Albume", qty: "1 uovo intero + 150g albume" },
+                        { name: "Legumi cotti (ceci, lenticchie ecc)", qty: "120g-150g" },
+                        { name: "Pesce fresco o surgelato", qty: "150g" },
+                        { name: "Seppie, calamari, polpo, piovra", qty: "200g" },
+                        { name: "Crostacei (gamberi, mazzancolle)", qty: "180g" },
+                        { name: "Trancio salmone/tonno/sgombro", qty: "80g-100g" },
+                        { name: "Tonno o sgombro in scatola", qty: "80g-90g" },
+                        { name: "Salmone affumicato", qty: "100g" },
+                        { name: "Robiola/stracchino/mozzarella", qty: "70g-80g" },
+                        { name: "Parmigiano/Grana Padano", qty: "30g-35g" },
+                        { name: "Ricotta magra", qty: "150g" },
+                        { name: "Fiocchi di latte", qty: "100g" }
+                    ]
+                },
+                cena: {
+                    primi: [
+                        { name: "Pasta, riso, cous cous", qty: "90g" },
+                        { name: "Orzo, farro, avena, mix cereali", qty: "90g" },
+                        { name: "Pane", qty: "120g" },
+                        { name: "Gnocchi (min 80% patate)", qty: "300g" },
+                        { name: "Patate", qty: "320g" },
+                        { name: "Pasta, riso ecc. + 120g legumi in scatola", qty: "80g" }
+                    ],
+                    condimenti: [
+                        { name: "Olio EVO", qty: "10g (1 cucchiaio raso o 2 cucchiaini)" },
+                        { name: "Parmigiano/Grana", qty: "10g (opzionale se non mangi carboidrati)" }
+                    ],
+                    secondi: [
+                        { name: "Petto di pollo, tacchino", qty: "100g" },
+                        { name: "Fusi o sovracoscia pollo", qty: "150g" },
+                        { name: "Macinato scelto bovino", qty: "100g" },
+                        { name: "Lonza di maiale", qty: "100g" },
+                        { name: "Carne manzo o vitello", qty: "100g" },
+                        { name: "Affettato di pollo/tacchino/cotto", qty: "100g" },
+                        { name: "Uova (intere)", qty: "2 uova" },
+                        { name: "Uova + Albume", qty: "1 uovo intero + 150g albume" },
+                        { name: "Legumi cotti (ceci, lenticchie ecc)", qty: "120g-150g" },
+                        { name: "Pesce fresco o surgelato", qty: "150g" },
+                        { name: "Seppie, calamari, polpo, piovra", qty: "200g" },
+                        { name: "Crostacei (gamberi, mazzancolle)", qty: "180g" },
+                        { name: "Trancio salmone/tonno/sgombro", qty: "80g-100g" },
+                        { name: "Tonno o sgombro in scatola", qty: "80g-90g" },
+                        { name: "Salmone affumicato", qty: "100g" },
+                        { name: "Robiola/stracchino/mozzarella", qty: "70g-80g" },
+                        { name: "Parmigiano/Grana Padano", qty: "30g-35g" },
+                        { name: "Ricotta magra", qty: "150g" },
+                        { name: "Fiocchi di latte", qty: "100g" }
+                    ]
+                }
+            },
+            giorno2: {
+                pranzo: {
+                    primi: [
+                        { name: "Pasta, riso, cous cous", qty: "60g" },
+                        { name: "Orzo, farro, avena, mix cereali", qty: "60g" },
+                        { name: "Gnocchi (min 80% patate)", qty: "180g" },
+                        { name: "Pasta, riso ecc. + 120g legumi in scatola", qty: "40g" },
+                        { name: "Pane", qty: "60g" },
+                        { name: "Patate", qty: "280g" }
+                    ],
+                    condimenti: [
+                        { name: "Olio EVO", qty: "10g (1 cucchiaio raso o 2 cucchiaini)" },
+                        { name: "Parmigiano/Grana", qty: "10g (opzionale)" }
+                    ],
+                    secondi: [
+                        { name: "Petto di pollo, tacchino", qty: "100g" },
+                        { name: "Fusi o sovracoscia pollo", qty: "150g" },
+                        { name: "Macinato scelto bovino", qty: "100g" },
+                        { name: "Lonza di maiale", qty: "100g" },
+                        { name: "Carne manzo o vitello", qty: "100g" },
+                        { name: "Affettato di pollo/tacchino/cotto", qty: "100g" },
+                        { name: "Uova (intere)", qty: "2 uova" },
+                        { name: "Uova + Albume", qty: "1 uovo intero + 150g albume" },
+                        { name: "Legumi cotti (ceci, lenticchie ecc)", qty: "120g-150g" },
+                        { name: "Pesce fresco o surgelato", qty: "150g" },
+                        { name: "Seppie, calamari, polpo, piovra", qty: "200g" },
+                        { name: "Crostacei (gamberi, mazzancolle)", qty: "180g" },
+                        { name: "Trancio salmone/tonno/sgombro", qty: "80g-100g" },
+                        { name: "Tonno o sgombro in scatola", qty: "80g-90g" },
+                        { name: "Salmone affumicato", qty: "100g" },
+                        { name: "Robiola/stracchino/mozzarella", qty: "70g-80g" },
+                        { name: "Parmigiano/Grana Padano", qty: "30g-35g" },
+                        { name: "Ricotta magra", qty: "150g" },
+                        { name: "Fiocchi di latte", qty: "100g" }
+                    ]
+                },
+                cena: {
+                    primi: [
+                        { name: "Pasta, riso, cous cous", qty: "60g" },
+                        { name: "Orzo, farro, avena, mix cereali", qty: "60g" },
+                        { name: "Gnocchi (min 80% patate)", qty: "180g" },
+                        { name: "Pane", qty: "60g" },
+                        { name: "Patate", qty: "280g" },
+                        { name: "Pasta, riso ecc. + 120g legumi in scatola", qty: "40g" }
+                    ],
+                    condimenti: [
+                        { name: "Olio EVO", qty: "10g (1 cucchiaio raso o 2 cucchiaini)" },
+                        { name: "Parmigiano/Grana", qty: "10g (opzionale)" }
+                    ],
+                    secondi: [
+                        { name: "Petto di pollo, tacchino", qty: "120g" },
+                        { name: "Fusi o sovracoscia pollo", qty: "170g" },
+                        { name: "Macinato scelto bovino", qty: "120g" },
+                        { name: "Lonza di maiale", qty: "120g" },
+                        { name: "Carne manzo o vitello", qty: "120g" },
+                        { name: "Affettato di pollo/tacchino/cotto", qty: "120g" },
+                        { name: "Uova (intere)", qty: "2 uova + 50g albume" },
+                        { name: "Legumi cotti (ceci, lenticchie ecc)", qty: "150g" },
+                        { name: "Pesce fresco o surgelato", qty: "180g" },
+                        { name: "Seppie, calamari, polpo, piovra", qty: "230g" },
+                        { name: "Crostacei (gamberi, mazzancolle)", qty: "200g" },
+                        { name: "Trancio salmone/tonno/sgombro", qty: "100g" },
+                        { name: "Tonno o sgombro in scatola", qty: "100g" },
+                        { name: "Salmone affumicato", qty: "120g" },
+                        { name: "Robiola/stracchino/mozzarella", qty: "90g" },
+                        { name: "Parmigiano/Grana Padano", qty: "40g" },
+                        { name: "Ricotta magra", qty: "180g" },
+                        { name: "Fiocchi di latte", qty: "120g" }
+                    ]
+                }
+            },
+            alimenti: {
+                carboidrati: ["Riso Basmati/Venere", "Pasta Integrale/Farro", "Patate", "Pane di Segale", "Farina d'Avena"],
+                proteine: ["Petto di Pollo", "Fesa di Tacchino", "Albumi d'uovo", "Merluzzo/Nasello", "Yogurt Greco 0%"],
+                grassi: ["Olio EVO", "Burro d'Arachidi 100%", "Mandorle/Noci", "Avocado"]
+            }
+        };
+
+        const paoloDatabase = {
+            giorno1: {
+                pranzo: {
+                    primi: [
+                        { name: "Pasta, riso, cous cous", qty: "100g" },
+                        { name: "Pasta di farina 100% legumi", qty: "100g" },
+                        { name: "Farro, orzo, avena, quinoa, riso int.", qty: "100g" },
+                        { name: "Gnocchi di patate (min 80% patate)", qty: "300g" },
+                        { name: "Pane", qty: "130g" },
+                        { name: "Crostini, gallette, wasa, pangrattato", qty: "100g" },
+                        { name: "Pasta farina 50% mais & 50% legumi", qty: "100g" },
+                        { name: "Patate", qty: "460g" },
+                        { name: "Fiocchi di patate da reidratare", qty: "100g" },
+                        { name: "Polenta pronta (panetto)", qty: "500g" }
+                    ],
+                    condimenti: [
+                        { name: "Olio EVO", qty: "10g (1 cucchiaio o 2 cucchiaini)" },
+                        { name: "Burro", qty: "15g" },
+                        { name: "Maionese", qty: "15g" },
+                        { name: "Pesto di basilico", qty: "20g" },
+                        { name: "Semi oleosi", qty: "15g" },
+                        { name: "Avocado", qty: "40g" },
+                        { name: "Olive da tavola", qty: "40g" }
+                    ],
+                    secondi: [
+                        { name: "Petto di pollo, tacchino", qty: "150g" },
+                        { name: "Macinato magro pollo, tacchino", qty: "150g" },
+                        { name: "Fusi o sovracoscia pollo", qty: "190g" },
+                        { name: "Pesce magro (merluzzo, nasello)", qty: "200g" },
+                        { name: "Seppie", qty: "250g" },
+                        { name: "Polpo, piovra", qty: "330g" },
+                        { name: "Calamaro", qty: "280g" },
+                        { name: "Filetto di orata", qty: "170g" },
+                        { name: "Crostacei (gamberi, mazzancolle)", qty: "250g" },
+                        { name: "Tonno fresco, sardine, alici", qty: "160g" },
+                        { name: "Filetto di salmone, sgombro fr.", qty: "150g" },
+                        { name: "Lonza di maiale", qty: "150g" },
+                        { name: "Carne magra manzo, vitello", qty: "150g" },
+                        { name: "Macinato scelto magro bovino", qty: "150g" },
+                        { name: "Sfilacci di pollo, equino, manzo", qty: "100g" },
+                        { name: "Affettato magro (cotto, tacchino, pollo)", qty: "150g" },
+                        { name: "Bresaola, crudo sgrassato", qty: "100g" },
+                        { name: "Salmone affumicato", qty: "100g" },
+                        { name: "Tonno o sgombro al naturale", qty: "150g" },
+                        { name: "Tonno o sgombro sott'olio", qty: "100g" },
+                        { name: "Uova intere", qty: "3 uova medie (165g)" },
+                        { name: "Ricotta magra", qty: "250g" },
+                        { name: "Fiocchi di latte magri", qty: "200g" },
+                        { name: "Mozzarella light", qty: "150g" },
+                        { name: "Legumi in scatola o freschi", qty: "240g" },
+                        { name: "Legumi secchi", qty: "50g" }
+                    ]
+                },
+                cena: {
+                    primi: [
+                        { name: "Pasta, riso, cous cous", qty: "100g" },
+                        { name: "Pasta di farina 100% legumi", qty: "100g" },
+                        { name: "Farro, orzo, avena, quinoa, riso int.", qty: "100g" },
+                        { name: "Gnocchi di patate (min 80% patate)", qty: "300g" },
+                        { name: "Pane", qty: "130g" },
+                        { name: "Crostini, gallette, wasa, pangrattato", qty: "100g" },
+                        { name: "Pasta farina 50% mais & 50% legumi", qty: "100g" },
+                        { name: "Patate", qty: "460g" },
+                        { name: "Fiocchi di patate da reidratare", qty: "100g" },
+                        { name: "Polenta pronta (panetto)", qty: "500g" }
+                    ],
+                    condimenti: [
+                        { name: "Olio EVO", qty: "10g (1 cucchiaio o 2 cucchiaini)" },
+                        { name: "Maionese", qty: "15g" },
+                        { name: "Pesto di basilico", qty: "20g" },
+                        { name: "Olive da tavola conservate", qty: "40g" },
+                        { name: "Avocado", qty: "50g" }
+                    ],
+                    secondi: [
+                        { name: "Petto di pollo, tacchino", qty: "150g" },
+                        { name: "Macinato magro pollo, tacchino", qty: "150g" },
+                        { name: "Fusi o sovracoscia pollo", qty: "190g" },
+                        { name: "Pesce magro (merluzzo, nasello)", qty: "200g" },
+                        { name: "Seppie", qty: "250g" },
+                        { name: "Polpo, piovra", qty: "330g" },
+                        { name: "Calamaro", qty: "280g" },
+                        { name: "Filetto di orata", qty: "170g" },
+                        { name: "Crostacei (gamberi, mazzancolle)", qty: "250g" },
+                        { name: "Tonno fresco, sardine, alici", qty: "160g" },
+                        { name: "Filetto di salmone, sgombro fr.", qty: "150g" },
+                        { name: "Lonza di maiale", qty: "150g" },
+                        { name: "Carne magra manzo, vitello", qty: "150g" },
+                        { name: "Macinato scelto magro bovino", qty: "150g" },
+                        { name: "Sfilacci di pollo, equino, manzo", qty: "100g" },
+                        { name: "Affettato magro (cotto, tacchino, pollo)", qty: "150g" },
+                        { name: "Bresaola, crudo sgrassato", qty: "100g" },
+                        { name: "Salmone affumicato", qty: "100g" },
+                        { name: "Tonno o sgombro al naturale", qty: "150g" },
+                        { name: "Tonno o sgombro sott'olio", qty: "100g" },
+                        { name: "Uova intere", qty: "3 uova medie (165g)" },
+                        { name: "Ricotta magra", qty: "250g" },
+                        { name: "Fiocchi di latte magri", qty: "200g" },
+                        { name: "Mozzarella light", qty: "150g" },
+                        { name: "Legumi in scatola o freschi", qty: "240g" },
+                        { name: "Legumi secchi", qty: "50g" }
+                    ]
+                }
+            },
+            alimenti: {
+                carboidrati: ["Riso Basmati/Integrale", "Pasta Farro/Grano", "Patate", "Pane Integrale", "Farina d'Avena"],
+                proteine: ["Petto di Pollo", "Fesa di Tacchino", "Albumi", "Salmone fres./Filetto", "Yogurt Greco 0%"],
+                grassi: ["Olio EVO", "Burro d'Arachidi", "Noci/Mandorle", "Cioccolato Fondente"]
+            }
+        };
+
+        const sofiaColazioni = [
+            { id: "s_col_1", title: "Yogurt Greco e Avena (Opz 1)", desc: "150-170g yogurt greco (bianco o aromatizzato) + 30g fiocchi d'avena/cereali/muesli + 100-150g frutta fresca o frutti di bosco + 20g frutta secca o burro di frutta secca." },
+            { id: "s_col_2", title: "Yogurt Greco Proteico (Opz 2)", desc: "150-170g yogurt greco (bianco o aromatizzato) + 40g fiocchi d'avena/cereali/muesli + 20g frutta secca o burro di frutta secca." },
+            { id: "s_col_3", title: "Toast Salato (Opz 3)", desc: "Toast: 40g pane + 50g affettato di pollo o tacchino o prosciutto cotto + 20g formaggio a fette (circa 1 fetta) + 100-150g frutta fresca (da scegliere occasionalmente, non più di 1-2 volte a settimana)." },
+            { id: "s_col_4", title: "Pancakes Proteici (Opz 4)", desc: "40g farina di avena + 150g yogurt greco + 150g albume (o 2 uova). Procedimento: unire in uno shaker tutti gli ingredienti pesati e agitare bene. Versare il composto su una padella antiaderente calda e girare quando sopra non sono più liquidi. Guarnire con 20g miele (o 20g marmellata o 20g creme spalmabili al cacao e nocciola/burro di frutta secca) + 100-150g frutta fresca o frutti di bosco." }
+        ];
+
+        const sofiaSpuntini = [
+            { id: "s_sp_1", title: "Frutta Fresca", desc: "150-200g frutta." },
+            { id: "s_sp_2", title: "Frutta e Frutta Secca", desc: "150-200g frutta + 20g frutta secca." },
+            { id: "s_sp_3", title: "Frutta e Parmigiano", desc: "150-200g frutta + 20-25g parmigiano (anche di quelli monoporzionati stile biraghini)." },
+            { id: "s_sp_4", title: "Parmigiano e Grissini", desc: "1 monoporzione di parmigiano + 20-30g grissini (solo occasionalmente, 1-2 volte la settimana)." },
+            { id: "s_sp_5", title: "Barretta Proteica", desc: "1 barretta proteica a tua scelta (occasionalmente, massimo 1-2 volte la settimana)." },
+            { id: "s_sp_6", title: "Yogurt e Frutta", desc: "150-170g yogurt greco + 1 frutto." },
+            { id: "s_sp_7", title: "Yogurt e Frutta Secca", desc: "150-170g yogurt greco + 20g frutta secca o burro di frutta secca." },
+            { id: "s_sp_8", title: "Yogurt e Cereali", desc: "150-170g yogurt greco + 30g fiocchi d'avena/muesli/cereali." },
+            { id: "s_sp_9", title: "PRE-WORKOUT: Banana e Frutta Secca ⭐", desc: "1 banana + 20g frutta secca o burro di frutta secca (da assumere almeno 60 minuti prima dell'allenamento)." },
+            { id: "s_sp_10", title: "PRE-WORKOUT: Gallette con Miele ⭐", desc: "40g gallette mais/riso/quinoa + 10g marmellata o miele + 10g frutta secca o burro di frutta secca (da assumere almeno 60 minuti prima dell'allenamento)." }
+        ];
+
+        const paoloColazioni = [
+            { id: "p_col_1", title: "Yogurt e Cereali", desc: "150g Yogurt Greco 0% + 50g Cornflakes (o fiocchi avena) + 100g Frutta Fresca + 10g Miele + 20g Frutta Secca." },
+            { id: "p_col_2", title: "Pancakes Proteici", desc: "50g Farina di Avena + 120g Albume (o 1 uovo + 100g albume) + 120g Yogurt Greco 0% + 20g Marmellata o miele + 20g Burro di Arachidi." },
+            { id: "p_col_3", title: "Porridge Proteico", desc: "50g Fiocchi di Avena + 150g Latte Parzialmente Scremato + 100g Albume + 100g Frutta Fresca + 20g Burro di Arachidi." },
+            { id: "p_col_4", title: "Toast Proteico", desc: "100g Pane Tostato + 50g Affettato Magro + 20g Formaggio Spalmabile Light + 100g Frutta Fresca." }
+        ];
+
+        const paoloSpuntini = [
+            { id: "p_sp_1", title: "Semplice Frutta", desc: "150g Frutta Fresca (1 frutto medio o 2 piccoli)." },
+            { id: "p_sp_2", title: "Yogurt e Cornflakes", desc: "150g Yogurt Greco 0% + 20g Cornflakes + 5g Miele." },
+            { id: "p_sp_3", title: "Yogurt e Frutta", desc: "130g Yogurt Bianco o greco 0% + 150g Frutta Fresca." },
+            { id: "p_sp_4", title: "Parmigiano e Frutta", desc: "20g Parmigiano + 100g Frutta Fresca." },
+            { id: "p_pw_1", title: "PRE-WORKOUT: Datteri Secchi ⭐", desc: "60g Datteri Secchi (non sciroppati)." },
+            { id: "p_pw_2", title: "PRE-WORKOUT: Gallette e Burro ⭐", desc: "3 gallette (21g) + 30g Marmellata/miele + 10g Crema 100% frutta secca." },
+            { id: "p_pw_3", title: "PRE-WORKOUT: Shaker Proteico ⭐", desc: "25g Whey Isolate + 150g Latte Parzialmente Scremato." }
+        ];
+
+        let currentUser = 'sofia';
+        let currentGiorno = 1;
+        let sofiaGiorno = 1; // giorno scelto da Sofia, ricordato quando si passa a Paolo e si torna
+        let currentTab = 'home';
+        let jointMealType = 'pranzo';
+        let riposoJointMealType = 'pranzo';
+
+        window.trackerState = {
+            sofia: {
+                s_cb: [false, false, false],
+                s_pe: [false, false],
+                s_uo: [false, false],
+                s_le: [false, false],
+                s_fo: [false, false],
+                s_cr: [false],
+                s_af: [false],
+                s_sc: [false],
+                s_li: [false]
+            },
+            paolo: {
+                p_uo: [false, false],
+                p_fo: [false, false],
+                p_cr: [false],
+                p_af: [false],
+                p_sc: [false]
+            }
+        };
+
+        // Salvataggio del tracker sul telefono: le spunte restano anche chiudendo l'app.
+        const TRACKER_STORAGE_KEY = 'dietaGlide.tracker.v1';
+
+        function loadTrackerState() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(TRACKER_STORAGE_KEY));
+                if (!saved) return;
+                // Copia solo le voci che esistono ancora, cosi' se cambi il tracker non si rompe nulla
+                Object.keys(window.trackerState).forEach(user => {
+                    Object.keys(window.trackerState[user]).forEach(id => {
+                        const boxes = saved[user] && saved[user][id];
+                        if (Array.isArray(boxes)) {
+                            window.trackerState[user][id] = window.trackerState[user][id].map((_, i) => boxes[i] === true);
+                        }
+                    });
+                });
+            } catch (e) { /* nessun dato salvato o storage non disponibile */ }
+        }
+
+        function saveTrackerState() {
+            try {
+                localStorage.setItem(TRACKER_STORAGE_KEY, JSON.stringify(window.trackerState));
+            } catch (e) { /* storage non disponibile: il tracker funziona comunque, senza salvare */ }
+        }
+
+        loadTrackerState();
+
+        const trackerConfig = {
+            sofia: [
+                { id: "s_cb", name: "Carne Bianca", icon: "🍗" },
+                { id: "s_pe", name: "Pesce", icon: "🐟" },
+                { id: "s_uo", name: "Uova", icon: "🥚" },
+                { id: "s_le", name: "Legumi", icon: "🌱" },
+                { id: "s_fo", name: "Formaggi", icon: "🧀" },
+                { id: "s_cr", name: "Carne Rossa", icon: "🥩" },
+                { id: "s_af", name: "Affettati", icon: "🥓" },
+                { id: "s_sc", name: "P. Scatola", icon: "🥫" },
+                { id: "s_li", name: "Pasto Libero", icon: "🍕" }
+            ],
+            paolo: [
+                { id: "p_uo", name: "Uova (1-2x)", icon: "🥚" },
+                { id: "p_fo", name: "Formaggi (1-2x)", icon: "🧀" },
+                { id: "p_cr", name: "C. Rossa (Max 1x)", icon: "🥩" },
+                { id: "p_af", name: "Affettati (Max 1x)", icon: "🥓" },
+                { id: "p_sc", name: "P. Cons. (Max 1x)", icon: "🥫" }
+            ]
+        };
+
+        const trackerPaoloFree = [
+            { name: "Carne Bianca", icon: "🍗" },
+            { name: "Pesce Magro", icon: "🐟" },
+            { name: "Legumi", icon: "🌱" }
+        ];
+
+        window.addEventListener('load', () => {
+            applyUserConfiguration();
+            renderFrequenciesPopup();
+        });
+
+        function switchUser(userKey) {
+            currentUser = userKey;
+            
+            const btnSofia = document.getElementById('btn-user-sofia');
+            const btnPaolo = document.getElementById('btn-user-paolo');
+            const appHeader = document.getElementById('app-header');
+            const appContainer = document.getElementById('app-container');
+            
+            const protBadge = document.getElementById('prot-badge');
+
+            const iconColazione = document.getElementById('icon-colazione');
+            const iconPranzo = document.getElementById('icon-pranzo');
+            const iconCena = document.getElementById('icon-cena');
+
+            if (userKey === 'sofia') {
+                appHeader.className = "bg-dietPrimarySofia text-white px-5 pb-5 pt-6 shrink-0 md:rounded-b-[28px] shadow-md transition-all duration-500 z-20";
+                
+                protBadge.innerText = "Prot. 2.1";
+                protBadge.className = "text-[9px] font-bold uppercase tracking-wider text-white bg-pink-500/80 px-2 py-0.5 rounded-md shadow-sm transition-all duration-300";
+
+                btnSofia.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-pink-500 text-white shadow-sm";
+                btnPaolo.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-white/50 hover:text-white";
+
+                iconColazione.className = "w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center text-sm transition-colors duration-300";
+                iconPranzo.className = "w-8 h-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center text-sm transition-colors duration-300";
+                iconCena.className = "w-8 h-8 rounded-lg bg-stone-900 text-pink-500 flex items-center justify-center text-sm transition-colors duration-300";
+
+                document.getElementById('day-selector-container').classList.remove('hidden');
+                document.getElementById('single-day-banner').classList.add('hidden');
+                
+                document.getElementById('btn-tracker').querySelector('i').className = "fa-solid fa-list-check text-pink-500";
+                
+                currentGiorno = sofiaGiorno;
+            } else {
+                appHeader.className = "bg-dietPrimaryPaolo text-white px-5 pb-5 pt-6 shrink-0 md:rounded-b-[28px] shadow-md transition-all duration-500 z-20";
+                
+                protBadge.innerText = "Prot. 4.0";
+                protBadge.className = "text-[9px] font-bold uppercase tracking-wider text-white bg-blue-500/80 px-2 py-0.5 rounded-md shadow-sm transition-all duration-300";
+
+                btnPaolo.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-200 bg-blue-600 text-white shadow-sm";
+                btnSofia.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all duration-200 text-white/50 hover:text-white";
+
+                iconColazione.className = "w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm transition-colors duration-300";
+                iconPranzo.className = "w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm transition-colors duration-300";
+                iconCena.className = "w-8 h-8 rounded-lg bg-slate-900 text-blue-400 flex items-center justify-center text-sm transition-colors duration-300";
+
+                document.getElementById('day-selector-container').classList.add('hidden');
+                document.getElementById('single-day-banner').classList.remove('hidden');
+                
+                document.getElementById('btn-tracker').querySelector('i').className = "fa-solid fa-list-check text-blue-500";
+                
+                currentGiorno = 1;
+            }
+
+            updateBottomNavColors();
+            setGiornoType(currentGiorno === 1 ? 'allenamento' : 'riposo');
+            renderFrequenciesPopup();
+        }
+
+        function updateBottomNavColors() {
+            const navHome = document.getElementById('nav-home');
+            const navAlimenti = document.getElementById('nav-alimenti');
+
+            if (currentTab === 'home') {
+                navHome.className = currentUser === 'sofia' 
+                    ? "flex flex-col items-center gap-1 py-1 px-3 text-pink-500 font-bold transition-all" 
+                    : "flex flex-col items-center gap-1 py-1 px-3 text-blue-600 font-bold transition-all";
+            }
+            if (currentTab === 'alimenti') {
+                navAlimenti.className = currentUser === 'sofia' 
+                    ? "flex flex-col items-center gap-1 py-1 px-3 text-pink-500 font-bold transition-all" 
+                    : "flex flex-col items-center gap-1 py-1 px-3 text-blue-600 font-bold transition-all";
+            }
+        }
+
+        function setGiornoType(type) {
+            currentGiorno = type === 'allenamento' ? 1 : 2;
+            if (currentUser === 'sofia') sofiaGiorno = currentGiorno;
+            
+            const btnG1 = document.getElementById('btn-giorno1');
+            const btnG2 = document.getElementById('btn-giorno2');
+            
+            if (currentUser === 'sofia') {
+                if (type === 'allenamento') {
+                    btnG1.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all duration-200 bg-pink-500 text-white shadow-sm";
+                    btnG2.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all duration-200 text-white/60 hover:text-white";
+                } else {
+                    btnG2.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all duration-200 bg-pink-500 text-white shadow-sm";
+                    btnG1.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all duration-200 text-white/60 hover:text-white";
+                }
+            }
+            applyUserConfiguration();
+        }
+
+        // ===== LETTURA DEI VALORI DAI DATABASE =====
+        // Tutte le grammature si cambiano SOLO in sofiaDatabase e paoloDatabase:
+        // Home, schede "Insieme" e "Riposo Insieme" le leggono da li' in automatico.
+
+        // Restituisce la quantita' (es. "80g") di un alimento, cercandolo per nome esatto
+        function getQty(db, giornoKey, meal, section, foodName) {
+            const list = (db[giornoKey] && db[giornoKey][meal] && db[giornoKey][meal][section]) || [];
+            const item = list.find(f => f.name === foodName);
+            if (!item) {
+                console.warn(`Alimento non trovato: "${foodName}" in ${giornoKey}.${meal}.${section}`);
+                return null;
+            }
+            return item.qty;
+        }
+
+        // Primo numero contenuto nel testo: "80g" -> 80, "2 uova + 50g albume" -> 2
+        function firstNumber(text) {
+            const m = String(text || '').match(/\d+(?:[.,]\d+)?/);
+            return m ? parseFloat(m[0].replace(',', '.')) : null;
+        }
+
+        // Alimenti usati per il riepilogo della Home (nome esatto come nel database)
+        const HOME_CARBO = "Pasta, riso, cous cous";
+        const HOME_SECONDO = "Petto di pollo, tacchino";
+
+        function mealSubtitle(db, giornoKey, meal) {
+            const carbo = getQty(db, giornoKey, meal, 'primi', HOME_CARBO) || '-';
+            const secondo = getQty(db, giornoKey, meal, 'secondi', HOME_SECONDO) || '-';
+            return `Carboidrati: ${carbo} | Secondo: ${secondo}`;
+        }
+
+        function applyUserConfiguration() {
+            const isSofia = currentUser === 'sofia';
+            const db = isSofia ? sofiaDatabase : paoloDatabase;
+            const giornoKey = isSofia && currentGiorno === 2 ? 'giorno2' : 'giorno1';
+
+            document.getElementById('colazione-subtitle').innerText = isSofia
+                ? `1 Opzione tra ${sofiaColazioni.length} disponibili`
+                : "Pancakes, Porridge, Toast o Yogurt";
+            document.getElementById('pranzo-subtitle').innerText = mealSubtitle(db, giornoKey, 'pranzo');
+            document.getElementById('cena-subtitle').innerText = mealSubtitle(db, giornoKey, 'cena');
+
+            renderFoodDatabase();
+        }
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            
+            document.getElementById('tab-home').classList.add('hidden');
+            document.getElementById('tab-alimenti').classList.add('hidden');
+            document.getElementById('tab-insieme').classList.add('hidden');
+            document.getElementById('tab-riposo-insieme').classList.add('hidden');
+            
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            const headerElement = document.getElementById('app-header');
+            if (tabId === 'insieme' || tabId === 'riposo-insieme') {
+                headerElement.style.display = 'none'; 
+            } else {
+                headerElement.style.display = 'block'; 
+            }
+
+            const tabs = ['home', 'alimenti', 'insieme', 'riposo-insieme'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`nav-${t}`);
+                if (t === tabId) {
+                    if (tabId === 'riposo-insieme') {
+                        btn.className = "flex flex-col items-center gap-1 py-1 px-3 text-teal-600 font-bold transition-all";
+                    } else if (tabId === 'insieme') {
+                        btn.className = "flex flex-col items-center gap-1 py-1 px-3 text-orange-500 font-bold transition-all";
+                    } else {
+                        btn.className = currentUser === 'sofia'
+                            ? "flex flex-col items-center gap-1 py-1 px-3 text-pink-500 font-bold transition-all"
+                            : "flex flex-col items-center gap-1 py-1 px-3 text-blue-600 font-bold transition-all";
+                    }
+                } else {
+                    btn.className = "flex flex-col items-center gap-1 py-1 px-3 text-stone-400 font-semibold hover:text-stone-600 transition-all";
+                }
+            });
+
+            if (tabId === 'insieme') {
+                renderJointFoods();
+            } else if (tabId === 'riposo-insieme') {
+                renderRiposoJointFoods();
+            }
+        }
+
+        function renderFoodDatabase() {
+            const container = document.getElementById('foods-container');
+            container.innerHTML = '';
+
+            const activeDb = currentUser === 'sofia' ? sofiaDatabase : paoloDatabase;
+            const activeDayKey = currentUser === 'paolo' ? 'giorno1' : (currentGiorno === 1 ? 'giorno1' : 'giorno2');
+            const data = activeDb[activeDayKey];
+
+            const themeClass = currentUser === 'sofia'
+                ? "bg-pink-50 text-pink-800 border-pink-100"
+                : "bg-blue-50 text-blue-800 border-blue-100";
+
+            const condTheme = "bg-amber-50 text-amber-800 border-amber-100";
+            const sameList = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+            // Se pranzo e cena hanno le stesse quantita' mostro una sola sezione, altrimenti due
+            const splitSection = (label, key, theme) => sameList(data.pranzo[key], data.cena[key])
+                ? [{ title: label, list: data.pranzo[key], theme }]
+                : [
+                    { title: `${label} - Pranzo`, list: data.pranzo[key], theme },
+                    { title: `${label} - Cena`, list: data.cena[key], theme }
+                  ];
+
+            const categories = [
+                ...splitSection("Primi Piatti (Carboidrati)", "primi", themeClass),
+                ...splitSection("Condimenti", "condimenti", condTheme),
+                ...splitSection("Secondi", "secondi", themeClass)
+            ];
+
+            categories.forEach(cat => {
+                const section = document.createElement('div');
+                section.className = "space-y-2 food-section";
+                
+                const title = document.createElement('h4');
+                title.className = "text-[11px] font-bold text-stone-400 uppercase tracking-wider pl-1 font-outfit";
+                title.innerText = cat.title;
+                section.appendChild(title);
+
+                const listWrapper = document.createElement('div');
+                listWrapper.className = "bg-white border border-stone-200/50 rounded-2xl overflow-hidden shadow-sm";
+
+                cat.list.forEach(food => {
+                    const row = document.createElement('div');
+                    row.className = "flex justify-between items-center px-4 py-3 border-b border-stone-50 last:border-none hover:bg-stone-50/50 transition-colors food-row";
+                    row.dataset.foodname = food.name.toLowerCase();
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = "text-xs font-semibold text-stone-700";
+                    nameSpan.innerText = food.name;
+
+                    const qtySpan = document.createElement('span');
+                    qtySpan.className = `text-[10px] px-2 py-0.5 rounded-lg font-bold border ${cat.theme}`;
+                    qtySpan.innerText = food.qty;
+
+                    row.appendChild(nameSpan);
+                    row.appendChild(qtySpan);
+                    listWrapper.appendChild(row);
+                });
+
+                section.appendChild(listWrapper);
+                container.appendChild(section);
+            });
+
+            // Se nella casella di ricerca c'e' gia' del testo, riapplica il filtro
+            filterFoods();
+        }
+
+        function filterFoods() {
+            const query = document.getElementById('food-search-input').value.toLowerCase().trim();
+            const sections = document.querySelectorAll('.food-section');
+
+            sections.forEach(sec => {
+                let visibleRows = 0;
+                const rows = sec.querySelectorAll('.food-row');
+                
+                rows.forEach(row => {
+                    const name = row.dataset.foodname;
+                    if (name.includes(query)) {
+                        row.classList.remove('hidden');
+                        row.classList.add('flex');
+                        visibleRows++;
+                    } else {
+                        row.classList.remove('flex');
+                        row.classList.add('hidden');
+                    }
+                });
+
+                if (visibleRows > 0 || query === '') {
+                    sec.classList.remove('hidden');
+                } else {
+                    sec.classList.add('hidden');
+                }
+            });
+        }
+
+        function setJointMealType(type) {
+            jointMealType = type;
+            const btnPranzo = document.getElementById('btn-joint-pranzo');
+            const btnCena = document.getElementById('btn-joint-cena');
+
+            if (type === 'pranzo') {
+                btnPranzo.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all bg-orange-500 text-white shadow-sm";
+                btnCena.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all text-stone-500 hover:text-stone-800";
+            } else {
+                btnCena.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all bg-orange-500 text-white shadow-sm";
+                btnPranzo.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all text-stone-500 hover:text-stone-800";
+            }
+
+            renderJointFoods();
+        }
+
+        // Alimenti delle schede condivise: "sofia" e "paolo" sono i nomi ESATTI nei rispettivi database.
+        // Per aggiungere un alimento alle schede Insieme basta aggiungere una riga qui.
+        const JOINT_PRIMI = [
+            { label: "Pasta, Riso o Cereali", sofia: "Pasta, riso, cous cous", paolo: "Pasta, riso, cous cous" },
+            { label: "Gnocchi di Patate (min 80% patate)", sofia: "Gnocchi (min 80% patate)", paolo: "Gnocchi di patate (min 80% patate)" },
+            { label: "Pane", sofia: "Pane", paolo: "Pane" },
+            { label: "Patate", sofia: "Patate", paolo: "Patate" }
+        ];
+
+        const JOINT_SECONDI = [
+            { label: "Petto di Pollo o Tacchino", sofia: "Petto di pollo, tacchino", paolo: "Petto di pollo, tacchino" },
+            { label: "Fusi o Sovracoscia (senza pelle e ossa)", sofia: "Fusi o sovracoscia pollo", paolo: "Fusi o sovracoscia pollo" },
+            { label: "Pesce magro fresco o surgelato", sofia: "Pesce fresco o surgelato", paolo: "Pesce magro (merluzzo, nasello)" },
+            { label: "Uova intere (Sgusciate)", sofia: "Uova (intere)", paolo: "Uova intere", isEggs: true },
+            { label: "Salmone affumicato", sofia: "Salmone affumicato", paolo: "Salmone affumicato", onlyInsieme: true }
+        ];
+
+        // Disegna una scheda condivisa.
+        // opts: container, meal ('pranzo'/'cena'), sofiaGiornoKey, labels e colori
+        function renderSharedMeal(opts) {
+            const container = document.getElementById(opts.containerId);
+            container.innerHTML = '';
+
+            const rowHtml = (name, sub, badge, badgeClass) => `
+                <div class="bg-white border border-stone-200/50 p-4 rounded-2xl shadow-sm flex items-center justify-between gap-3">
+                    <div>
+                        <h5 class="text-xs font-bold text-stone-800">${name}</h5>
+                        <p class="text-[10px] text-stone-400 mt-0.5 font-semibold">${sub}</p>
+                    </div>
+                    <div class="${badgeClass} text-white font-black text-xs py-1 px-3 rounded-lg border shadow-sm text-right shrink-0">
+                        ${badge}
+                    </div>
+                </div>
+            `;
+
+            const lookup = (food, section) => ({
+                s: getQty(sofiaDatabase, opts.sofiaGiornoKey, opts.meal, section, food.sofia),
+                p: getQty(paoloDatabase, 'giorno1', opts.meal, section, food.paolo)
+            });
+
+            const addTitle = (text, extraClass) => {
+                const h = document.createElement('h4');
+                h.className = `text-[11px] font-bold text-stone-400 uppercase tracking-wider pl-1 font-outfit ${extraClass}`;
+                h.innerText = text;
+                container.appendChild(h);
+            };
+
+            // Carboidrati
+            addTitle(opts.carboTitle, 'mt-2');
+            JOINT_PRIMI.forEach(food => {
+                const { s, p } = lookup(food, 'primi');
+                if (!s || !p) return;
+                const tot = firstNumber(s) + firstNumber(p);
+                container.insertAdjacentHTML('beforeend',
+                    rowHtml(food.label, `${opts.sofiaLabel}: ${s} | Paolo: ${p}`, `PESA: ${tot}g`, opts.carboBadge));
+            });
+
+            // Proteine
+            addTitle(opts.protTitle, 'mt-4');
+            JOINT_SECONDI.forEach(food => {
+                if (food.onlyInsieme && !opts.showOnlyInsieme) return;
+                const { s, p } = lookup(food, 'secondi');
+                if (!s || !p) return;
+
+                let badge;
+                if (food.isEggs) {
+                    // Somma il numero di uova; aggiunge eventuali extra (es. "+ 50g albume")
+                    const eggs = firstNumber(s) + firstNumber(p);
+                    const extras = [s, p]
+                        .flatMap(q => q.split('+').slice(1))
+                        .map(x => x.trim())
+                        .filter(Boolean);
+                    badge = `Sgusciate: ${eggs} uova${extras.length ? '<br><span class="font-semibold text-[10px]">+ ' + extras.join(' + ') + '</span>' : ''}`;
+                } else {
+                    badge = `PESA: ${firstNumber(s) + firstNumber(p)}g`;
+                }
+                container.insertAdjacentHTML('beforeend',
+                    rowHtml(food.label, `${opts.sofiaLabel}: ${s} | Paolo: ${p}`, badge, opts.protBadge));
+            });
+        }
+
+        function renderJointFoods() {
+            renderSharedMeal({
+                containerId: 'joint-foods-container',
+                meal: jointMealType,
+                sofiaGiornoKey: 'giorno1',
+                sofiaLabel: 'Sofia',
+                carboTitle: 'Carboidrati Condivisi',
+                protTitle: 'Proteine Condivise',
+                carboBadge: 'bg-orange-500 border-orange-600',
+                protBadge: 'bg-amber-600 border-amber-700',
+                showOnlyInsieme: true
+            });
+        }
+
+        function setRiposoJointMealType(type) {
+            riposoJointMealType = type;
+            const btnPranzo = document.getElementById('btn-riposo-joint-pranzo');
+            const btnCena = document.getElementById('btn-riposo-joint-cena');
+
+            if (type === 'pranzo') {
+                btnPranzo.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all bg-teal-600 text-white shadow-sm";
+                btnCena.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all text-stone-500 hover:text-stone-800";
+            } else {
+                btnCena.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all bg-teal-600 text-white shadow-sm";
+                btnPranzo.className = "flex-1 text-center py-2 rounded-lg text-xs font-bold transition-all text-stone-500 hover:text-stone-800";
+            }
+
+            renderRiposoJointFoods();
+        }
+
+        function renderRiposoJointFoods() {
+            renderSharedMeal({
+                containerId: 'riposo-joint-foods-container',
+                meal: riposoJointMealType,
+                sofiaGiornoKey: 'giorno2',
+                sofiaLabel: 'Sofia (Riposo)',
+                carboTitle: 'Carboidrati Condivisi Mix',
+                protTitle: 'Proteine Condivise Mix',
+                carboBadge: 'bg-teal-600 border-teal-700',
+                protBadge: 'bg-emerald-600 border-emerald-700',
+                showOnlyInsieme: false
+            });
+        }
+
+        let activePopupMeal = '';
+
+        function openMealDetail(mealId) {
+            activePopupMeal = mealId;
+            const popup = document.getElementById('meal-detail-popup');
+            const content = document.getElementById('meal-popup-content');
+            const iconBox = document.getElementById('popup-meal-icon');
+            const title = document.getElementById('popup-meal-title');
+            const selectorWrapper = document.getElementById('popup-option-selector-wrapper');
+
+            selectorWrapper.classList.add('hidden');
+            const isSofia = currentUser === 'sofia';
+
+            if (mealId === 'colazione') {
+                iconBox.className = isSofia 
+                    ? "w-9 h-9 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center" 
+                    : "w-9 h-9 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center";
+                iconBox.innerHTML = '<i class="fa-solid fa-mug-saucer"></i>';
+                title.innerText = "Colazione";
+                
+                selectorWrapper.classList.remove('hidden');
+                populateOptionSelector(isSofia ? sofiaColazioni : paoloColazioni);
+                renderMealOptionDetails();
+            } 
+            else if (mealId === 'spuntino-mm' || mealId === 'spuntino-mp') {
+                iconBox.className = "w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center";
+                iconBox.innerHTML = mealId === 'spuntino-mm' ? '<i class="fa-solid fa-apple-whole"></i>' : '<i class="fa-solid fa-bolt"></i>';
+                title.innerText = mealId === 'spuntino-mm' ? "Spuntino Mattina" : "Spuntino Pomeriggio";
+
+                selectorWrapper.classList.remove('hidden');
+                populateOptionSelector(isSofia ? sofiaSpuntini : paoloSpuntini);
+                renderMealOptionDetails();
+            } 
+            else if (mealId === 'pranzo' || mealId === 'cena') {
+                const isPranzo = mealId === 'pranzo';
+                iconBox.className = isPranzo 
+                    ? (isSofia ? "w-9 h-9 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center" : "w-9 h-9 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center")
+                    : (isSofia ? "w-9 h-9 rounded-xl bg-pink-100 text-pink-500 flex items-center justify-center" : "w-9 h-9 rounded-xl bg-blue-100 text-blue-500 flex items-center justify-center");
+                iconBox.innerHTML = isPranzo ? '<i class="fa-solid fa-bowl-rice"></i>' : '<i class="fa-solid fa-moon"></i>';
+                title.innerText = isPranzo ? "Pranzo Completo" : "Cena Equilibrata";
+
+                renderMainMealDetails(mealId);
+            }
+
+            popup.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        function closeMealDetail() {
+            const popup = document.getElementById('meal-detail-popup');
+            const content = document.getElementById('meal-popup-content');
+            
+            content.classList.add('translate-y-full');
+            setTimeout(() => {
+                popup.classList.add('hidden');
+            }, 300);
+        }
+
+        function populateOptionSelector(options) {
+            const select = document.getElementById('popup-option-selector');
+            select.innerHTML = '';
+            options.forEach(opt => {
+                const el = document.createElement('option');
+                el.value = opt.id;
+                el.innerText = opt.title;
+                select.appendChild(el);
+            });
+        }
+
+        function renderMealOptionDetails() {
+            const select = document.getElementById('popup-option-selector');
+            const optId = select.value;
+            const body = document.getElementById('popup-meal-body');
+
+            const isSofia = currentUser === 'sofia';
+            const source = activePopupMeal === 'colazione' 
+                ? (isSofia ? sofiaColazioni : paoloColazioni) 
+                : (isSofia ? sofiaSpuntini : paoloSpuntini);
+
+            const option = source.find(o => o.id === optId);
+
+            if (option) {
+                body.innerHTML = `
+                    <div class="bg-white border border-stone-200/50 p-4 rounded-2xl shadow-sm space-y-3">
+                        <h4 class="text-xs font-bold text-stone-800 font-outfit">${option.title}</h4>
+                        <p class="text-xs text-stone-600 leading-relaxed">${option.desc}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderMainMealDetails(mealKey) {
+            const body = document.getElementById('popup-meal-body');
+            const activeDb = currentUser === 'sofia' ? sofiaDatabase : paoloDatabase;
+            const activeDayKey = currentUser === 'paolo' ? 'giorno1' : (currentGiorno === 1 ? 'giorno1' : 'giorno2');
+            const data = activeDb[activeDayKey][mealKey];
+
+            const themeBadgePrimi = currentUser === 'sofia'
+                ? "bg-pink-50 text-pink-800 border-pink-100"
+                : "bg-blue-50 text-blue-800 border-blue-100";
+
+            let html = `
+                <div class="space-y-3">
+                    <p class="text-[10px] text-stone-400 font-semibold uppercase tracking-wider pl-1 font-outfit">Scegli 1 Carboidrato (Primo)</p>
+                    <div class="bg-white border border-stone-200/50 rounded-2xl overflow-hidden shadow-sm divide-y divide-stone-100 font-sans">
+            `;
+
+            data.primi.forEach(pr => {
+                html += `
+                    <div class="flex justify-between items-center px-4 py-2.5">
+                        <span class="text-xs font-semibold text-stone-700">${pr.name}</span>
+                        <span class="text-[10px] ${themeBadgePrimi} border px-2 py-0.5 rounded-lg font-bold">${pr.qty}</span>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-1">
+                    <p class="text-[10px] text-stone-400 font-semibold uppercase tracking-wider pl-1 font-outfit">Scegli 1 Proteina (Secondo)</p>
+                    <div class="bg-white border border-stone-200/50 rounded-2xl overflow-hidden shadow-sm divide-y divide-stone-100 font-sans">
+            `;
+
+            data.secondi.forEach(sec => {
+                html += `
+                    <div class="flex justify-between items-center px-4 py-2.5">
+                        <span class="text-xs font-semibold text-stone-700">${sec.name}</span>
+                        <span class="text-[10px] bg-indigo-50 text-indigo-800 border border-indigo-100 px-2 py-0.5 rounded-lg font-bold">${sec.qty}</span>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+
+                <div class="space-y-3 pt-1">
+                    <p class="text-[10px] text-stone-400 font-semibold uppercase tracking-wider pl-1 font-outfit">${currentUser === 'paolo' ? 'Condimento (scegline 1)' : 'Condimenti Compresi'}</p>
+                    <div class="bg-white border border-stone-200/50 rounded-2xl overflow-hidden shadow-sm divide-y divide-stone-100 font-sans">
+            `;
+
+            data.condimenti.forEach(co => {
+                html += `
+                    <div class="flex justify-between items-center px-4 py-2.5">
+                        <span class="text-xs font-semibold text-stone-700">${co.name}</span>
+                        <span class="text-[10px] bg-amber-50 text-amber-800 border border-amber-100 px-2 py-0.5 rounded-lg font-bold">${co.qty}</span>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            if (currentUser === 'paolo') {
+                html += `
+                    <div class="space-y-3 pt-1">
+                        <p class="text-[10px] text-stone-400 font-semibold uppercase tracking-wider pl-1 font-outfit">Sostituzioni Olio (Ricette Composte)</p>
+                        <div class="bg-white border border-stone-200/50 p-4 rounded-2xl shadow-sm space-y-2 text-xs text-stone-600 font-sans">
+                            <p class="leading-relaxed"><strong>Per ricette composte</strong> puoi sostituire <strong>10g di Olio EVO</strong> con:</p>
+                            <ul class="list-disc pl-4 space-y-0.5 text-[10px] text-stone-500">
+                                <li>15g Burro o Maionese</li>
+                                <li>20g Pesto di Basilico</li>
+                                <li>15-20g Semi oleosi</li>
+                                <li>40g Avocado o Olive</li>
+                            </ul>
+                            <p class="leading-relaxed border-t pt-1.5 text-[10px] text-stone-400">
+                                <em>Alternative proteico/lipidiche:</em> 20g Parmigiano o 1 Uovo intero (sporadicamente).
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="bg-stone-100 border border-stone-200 p-3 rounded-2xl space-y-1 font-sans">
+                    <h5 class="text-[10px] font-bold text-stone-700 uppercase">Verdura a volontà</h5>
+                    <p class="text-[10px] text-stone-500 leading-normal">
+                        Quantità libera. Porzione indicativa di 80g per verdure a foglia e 200-300g per altre tipologie.
+                    </p>
+                </div>
+            `;
+
+            body.innerHTML = html;
+        }
+
+        function openFrequencies() {
+            window.renderFrequenciesPopup();
+            const popup = document.getElementById('freq-detail-popup');
+            const content = document.getElementById('freq-popup-content');
+            
+            popup.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        function closeFrequencies() {
+            const popup = document.getElementById('freq-detail-popup');
+            const content = document.getElementById('freq-popup-content');
+            
+            content.classList.add('translate-y-full');
+            setTimeout(() => {
+                popup.classList.add('hidden');
+            }, 300);
+        }
+
+        window.toggleFreqCheckbox = function(userKey, foodId, index) {
+            window.trackerState[userKey][foodId][index] = !window.trackerState[userKey][foodId][index];
+            saveTrackerState();
+            window.renderFrequenciesPopup();
+        };
+
+        window.resetFrequencies = function() {
+            const keys = Object.keys(window.trackerState[currentUser]);
+            keys.forEach(k => {
+                for(let i=0; i<window.trackerState[currentUser][k].length; i++) {
+                    window.trackerState[currentUser][k][i] = false;
+                }
+            });
+            saveTrackerState();
+            window.renderFrequenciesPopup();
+        };
+
+        window.renderFrequenciesPopup = function() {
+            const container = document.getElementById('freq-popup-body');
+            const config = trackerConfig[currentUser];
+            const state = window.trackerState[currentUser];
+            
+            const activeColorClass = currentUser === 'sofia' ? 'bg-pink-500 border-pink-500 text-white' : 'bg-blue-600 border-blue-600 text-white';
+            const inactiveColorClass = 'bg-white border-stone-200 text-transparent hover:border-stone-300';
+            
+            let html = '';
+            
+            config.forEach(item => {
+                const boxes = state[item.id];
+                
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-white border border-stone-200/60 rounded-2xl shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">${item.icon}</span>
+                            <span class="text-xs font-bold text-stone-700">${item.name}</span>
+                        </div>
+                        <div class="flex gap-1.5">
+                `;
+                
+                boxes.forEach((isChecked, index) => {
+                    const boxClass = isChecked ? activeColorClass : inactiveColorClass;
+                    html += `
+                            <button onclick="window.toggleFreqCheckbox('${currentUser}', '${item.id}', ${index})" class="w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-200 ${boxClass}">
+                                <i class="fa-solid fa-check text-[10px]"></i>
+                            </button>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (currentUser === 'paolo') {
+                html += `
+                    <div class="mt-4 pt-3 border-t border-stone-100">
+                        <h4 class="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-2 pl-1">Alimenti a Consumo Libero</h4>
+                        <div class="flex flex-wrap gap-2">
+                `;
+                trackerPaoloFree.forEach(freeItem => {
+                    html += `
+                            <div class="flex items-center gap-1.5 bg-stone-50 border border-stone-200 px-2.5 py-1.5 rounded-lg text-[10px] font-bold text-stone-500">
+                                <span>${freeItem.icon}</span> ${freeItem.name}
+                            </div>
+                    `;
+                });
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
